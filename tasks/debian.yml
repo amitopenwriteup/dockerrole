@@ -1,0 +1,17 @@
+- name: Add an Apt signing key, uses whichever key is at the URL
+  ansible.builtin.apt_key:
+      url: "{{  docker_repo_key_url_debian }}"
+      state: present
+  when: ansible_os_family == "Debian"
+- name: adding repo
+  ansible.builtin.apt_repository:
+     repo: "deb [arch=amd64] {{ docker_repo_debian_url }} {{ ansible_lsb.codename }} stable"
+     state: present
+  when: ansible_os_family == "Debian"
+- name: Install a list of packages
+  ansible.builtin.apt:
+      name: "{{  docker_package_debian }}"
+      state: present
+  when: ansible_os_family == "Debian"
+  notify: Restart Docker
+

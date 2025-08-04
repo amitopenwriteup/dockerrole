@@ -1,0 +1,5 @@
+---
+docker_repo_redhat_url: https://download.docker.com/linux/rhel/docker-ce.repo
+docker_repo_debian_url:  https://download.docker.com/linux/ubuntu
+docker_repo_key_url_debian: https://download.docker.com/linux/ubuntu/gpg
+

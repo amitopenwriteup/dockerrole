@@ -1,0 +1,7 @@
+---
+- name: Redhat docker installation
+  include_tasks: redhat.yml
+  when: ansible_os_family == "RedHat"
+- name: Debian  docker installation
+  include_tasks: debian.yml
+  when: ansible_os_family == "Debian"

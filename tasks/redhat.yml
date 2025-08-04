@@ -1,0 +1,20 @@
+- name: prerequities of Redhat
+  ansible.builtin.dnf:
+      name: dnf-plugins-core
+      state: present
+  when: ansible_os_family == "RedHat"
+- name: Adding redhat repo
+  ansible.builtin.get_url:
+      url: "{{  docker_repo_redhat_url }}"
+      dest: /etc/yum.repos.d/docker-ce.repo
+  when: ansible_os_family == "RedHat"
+- name: Install the latest version of Docker
+  ansible.builtin.dnf:
+      name: "{{ docker_package_redhat }}"
+      state: present
+  when: ansible_os_family == "RedHat"
+  notify: Restart Docker
+- name: restart service
+  ansible.builtin.systemd:
+      name: docker
+      state: restarted

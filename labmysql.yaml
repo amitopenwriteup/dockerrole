@@ -1,0 +1,141 @@
+---
+
+- name: Simulate RDS MySQL setup on CentOS with .my.cnf
+
+  hosts: all
+  vars_files:
+    - vault.yml
+
+  become: yes
+
+  vars:
+
+    mysql_root_password: "RootPass123!"
+
+    db_name: "testdb"
+
+    db_user: "dbuser"
+
+    db_user_password: "UserPass123!"
+
+
+
+  collections:
+
+    - community.mysql
+
+
+
+  tasks:
+
+    - name: Ensure Python 3 and pip are installed
+
+      yum:
+
+        name:
+
+          - python3
+
+          - python3-pip
+
+        state: present
+
+
+
+    - name: Install PyMySQL module for Python 3
+
+      pip:
+
+        name: PyMySQL
+
+        executable: pip3
+
+
+
+    - name: Install MariaDB server
+
+      yum:
+
+        name: mariadb-server
+
+        state: present
+
+
+
+    - name: Start and enable MariaDB service
+
+      service:
+
+        name: mariadb
+
+        state: started
+
+        enabled: true
+
+
+
+    - name: Set MySQL root password (using socket authentication)
+
+      mysql_user:
+
+        name: root
+
+        host_all: yes
+
+        password: "{{ mysql_root_password }}"
+
+        login_unix_socket: /var/lib/mysql/mysql.sock
+
+        config_file: ""
+
+      ignore_errors: true
+
+
+
+    - name: Create ~/.my.cnf with root credentials for future tasks
+
+      copy:
+
+        dest: /root/.my.cnf
+
+        content: |
+
+          [client]
+
+          user=root
+
+          password={{ mysql_root_password }}
+
+        owner: root
+
+        group: root
+
+        mode: '0600'
+
+
+
+    - name: Create a MySQL database
+
+      mysql_db:
+
+        name: "{{ db_name }}"
+
+        state: present
+
+
+
+    - name: Create a MySQL user with privileges
+
+      mysql_user:
+
+        name: "{{ db_user }}"
+
+        password: "{{ db_user_password }}"
+
+        priv: "{{ db_name }}.*:ALL"
+
+        host: "%"
+
+        state: present
+
+
